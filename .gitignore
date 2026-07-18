@@ -1,0 +1,16 @@
+# dependencies
+node_modules/
+
+# secrets
+.env
+
+# logs
+logs/*.log
+*.log
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# editor
+.vscode/
