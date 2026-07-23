@@ -64,8 +64,9 @@ const login = async (req, res) => {
     req.session.regenerate((err) => {
       if (err) return res.status(500).json({ error: 'Login failed' });
 
-      req.session.userId = user._id;
+     req.session.userId = user._id;
       req.session.role = user.role;
+      req.session.mfaPassed = !user.mfaEnabled; // true immediately if MFA is off, false if it still needs verifying
 
       res.status(200).json({
         message: 'Login successful',
