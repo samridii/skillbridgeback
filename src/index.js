@@ -7,7 +7,7 @@ const mongoSanitize = require('express-mongo-sanitize');
 const hpp = require('hpp');
 const cookieParser = require('cookie-parser');
 const session = require('express-session');
-const MongoStore = require('connect-mongo');
+const MongoStore = require('connect-mongo').default || require('connect-mongo');
 const connectDB = require('./config/db');
 
 const app = express();
@@ -53,7 +53,8 @@ app.get('/api/health', (req, res) => {
 });
 
 const PORT = process.env.PORT || 5000;
-
+const authRoutes = require('./routes/authRoutes');
+app.use('/api/auth', authRoutes);
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
