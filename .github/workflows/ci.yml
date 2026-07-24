@@ -1,0 +1,38 @@
+name: CI Security Pipeline
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  security-checks:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Setup Node
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: package-lock.json
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Run dependency vulnerability scan
+        run: npm audit --audit-level=high
+
+      - name: Run Semgrep static analysis
+        uses: returntocorp/semgrep-action@v1
+        with:
+          config: p/owasp-top-ten
+
+      - name: Check for hardcoded secrets
+        uses: trufflesecurity/trufflehog@main
+        with:
+          extra_args: --only-verified
