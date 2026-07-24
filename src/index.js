@@ -61,6 +61,8 @@ const gigRoutes = require('./routes/gigRoutes');
 app.use('/api/gigs', gigRoutes);
 const verificationRoutes = require('./routes/verificationRoutes');
 app.use('/api/verification', verificationRoutes);
+const orderRoutes = require('./routes/orderRoutes');
+app.use('/api/orders', orderRoutes);
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
