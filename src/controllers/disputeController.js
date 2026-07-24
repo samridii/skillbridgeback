@@ -1,5 +1,6 @@
 const Dispute = require('../models/Dispute');
 const Order = require('../models/Order');
+const { logSecurityEvent } = require('../utils/logger');
 
 // either buyer or seller on the order can raise a dispute
 const raiseDispute = async (req, res) => {
@@ -24,6 +25,8 @@ const raiseDispute = async (req, res) => {
     order.status = 'disputed';
     await order.save();
 
+    logSecurityEvent('dispute_raised', { disputeId: dispute._id, orderId: order._id, raisedBy: req.user._id });
+
     res.status(201).json(dispute);
   } catch (err) {
     res.status(500).json({ error: 'Failed to raise dispute' });
@@ -46,6 +49,8 @@ const resolveDispute = async (req, res) => {
     dispute.resolvedBy = req.user._id; // req.user set by protect middleware, already confirmed admin by requireRole
     dispute.resolutionNote = note;
     await dispute.save();
+
+    logSecurityEvent('dispute_resolved', { disputeId: dispute._id, resolution, resolvedBy: req.user._id });
 
     res.status(200).json(dispute);
   } catch (err) {
