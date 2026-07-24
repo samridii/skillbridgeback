@@ -69,6 +69,17 @@ const reviewRoutes = require('./routes/reviewRoutes');
 app.use('/api/reviews', reviewRoutes);
 const disputeRoutes = require('./routes/disputeRoutes');
 app.use('/api/disputes', disputeRoutes);
+const { generateToken } = require('./middleware/csrf');
+
+app.get('/api/csrf-token', (req, res) => {
+  res.json({ csrfToken: generateToken(req, res) });
+});
+const { doubleCsrfProtection } = require('./middleware/csrf');
+
+app.use((req, res, next) => {
+  if (req.method === 'GET') return next(); // reads dont need csrf protection
+  doubleCsrfProtection(req, res, next);
+});
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
