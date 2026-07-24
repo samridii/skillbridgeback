@@ -1,4 +1,5 @@
 const User = require('../models/User');
+const { logSecurityEvent } = require('../utils/logger');
 
 const MAX_ATTEMPTS = 5; // lockout threshold
 const LOCK_TIME = 15 * 60 * 1000; // 15 minutes
@@ -19,16 +20,15 @@ const register = async (req, res) => {
       fullName,
     });
 
+    logSecurityEvent('user_registered', { userId: user._id, email: universityEmail });
+
     res.status(201).json({
       message: 'Account created, pending verification',
       userId: user._id,
     });
   } catch (err) {
-    console.error(err);
-    res.status(500).json({ error: 'Registration failed', detail: err.message });
+    res.status(500).json({ error: 'Registration failed' }); // no internal detail leaked to client
   }
-
-// login with lockout and generic error messages
 };
 
 // login with lockout and generic error messages
@@ -40,6 +40,7 @@ const login = async (req, res) => {
 
     // same generic message whether email exists or not, avoids user enumeration
     if (!user) {
+      logSecurityEvent('login_failed', { reason: 'unknown_email', emailAttempted: universityEmail });
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
@@ -55,6 +56,7 @@ const login = async (req, res) => {
         user.lockUntil = Date.now() + LOCK_TIME; // lock account after too many failures
       }
       await user.save();
+      logSecurityEvent('login_failed', { reason: 'wrong_password', userId: user._id });
       return res.status(401).json({ error: 'Invalid email or password' });
     }
 
@@ -67,9 +69,11 @@ const login = async (req, res) => {
     req.session.regenerate((err) => {
       if (err) return res.status(500).json({ error: 'Login failed' });
 
-     req.session.userId = user._id;
+      req.session.userId = user._id;
       req.session.role = user.role;
       req.session.mfaPassed = !user.mfaEnabled; // true immediately if MFA is off, false if it still needs verifying
+
+      logSecurityEvent('login_success', { userId: user._id });
 
       res.status(200).json({
         message: 'Login successful',
@@ -78,7 +82,7 @@ const login = async (req, res) => {
       });
     });
   } catch (err) {
-    res.status(500).json({ error: 'Registration failed' });
+    res.status(500).json({ error: 'Login failed' }); // fixed, was wrongly saying Registration failed
   }
 };
 

@@ -2,6 +2,7 @@ const fs = require('fs');
 const path = require('path');
 const User = require('../models/User');
 const { encryptBuffer, decryptBuffer } = require('../utils/encryption');
+const { logSecurityEvent } = require('../utils/logger');
 
 const UPLOAD_DIR = path.join(__dirname, '..', '..', 'secure_uploads'); // outside the webroot, never served statically
 
@@ -64,6 +65,8 @@ const approveVerification = async (req, res) => {
     user.role = 'verified'; // this is the actual privilege change
     await user.save();
 
+    logSecurityEvent('verification_approved', { userId: user._id, approvedBy: req.user._id });
+
     res.status(200).json({ message: 'User verified' });
   } catch (err) {
     res.status(500).json({ error: 'Approval failed' });
@@ -78,6 +81,8 @@ const rejectVerification = async (req, res) => {
 
     user.verificationStatus = 'rejected';
     await user.save();
+
+    logSecurityEvent('verification_rejected', { userId: user._id, rejectedBy: req.user._id });
 
     res.status(200).json({ message: 'User rejected' });
   } catch (err) {
