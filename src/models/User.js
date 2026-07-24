@@ -61,11 +61,10 @@ const userSchema = new mongoose.Schema({
 }, { timestamps: true });
 
 // hash password before saving, only if it was modified
-userSchema.pre('save', async function (next) {
-  if (!this.isModified('passwordHash')) return next();
+userSchema.pre('save', async function () {
+  if (!this.isModified('passwordHash')) return; // just return, no next() needed in mongoose 8
   const salt = await bcrypt.genSalt(12); // cost factor 12, slow enough to resist brute-force
   this.passwordHash = await bcrypt.hash(this.passwordHash, salt);
-  next();
 });
 
 // instance method to check password on login

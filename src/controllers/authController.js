@@ -24,8 +24,11 @@ const register = async (req, res) => {
       userId: user._id,
     });
   } catch (err) {
-    res.status(500).json({ error: 'Registration failed' }); // no internal error detail leaked to client
+    console.error(err);
+    res.status(500).json({ error: 'Registration failed', detail: err.message });
   }
+
+// login with lockout and generic error messages
 };
 
 // login with lockout and generic error messages
@@ -75,7 +78,7 @@ const login = async (req, res) => {
       });
     });
   } catch (err) {
-    res.status(500).json({ error: 'Login failed' });
+    res.status(500).json({ error: 'Registration failed' });
   }
 };
 
