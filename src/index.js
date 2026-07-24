@@ -59,6 +59,8 @@ const mfaRoutes = require('./routes/mfaRoutes');
 app.use('/api/mfa', mfaRoutes);
 const gigRoutes = require('./routes/gigRoutes');
 app.use('/api/gigs', gigRoutes);
+const verificationRoutes = require('./routes/verificationRoutes');
+app.use('/api/verification', verificationRoutes);
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
