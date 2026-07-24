@@ -57,6 +57,8 @@ const authRoutes = require('./routes/authRoutes');
 app.use('/api/auth', authRoutes);
 const mfaRoutes = require('./routes/mfaRoutes');
 app.use('/api/mfa', mfaRoutes);
+const gigRoutes = require('./routes/gigRoutes');
+app.use('/api/gigs', gigRoutes);
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
