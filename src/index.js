@@ -65,6 +65,8 @@ const orderRoutes = require('./routes/orderRoutes');
 app.use('/api/orders', orderRoutes);
 const messageRoutes = require('./routes/messageRoutes');
 app.use('/api/messages', messageRoutes);
+const reviewRoutes = require('./routes/reviewRoutes');
+app.use('/api/reviews', reviewRoutes);
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
