@@ -8,6 +8,7 @@ const cookieParser = require('cookie-parser');
 const session = require('express-session');
 const MongoStore = require('connect-mongo').default || require('connect-mongo');
 const connectDB = require('./config/db');
+const { generalLimiter } = require('./middleware/rateLimiter');
 
 const app = express();
 
@@ -33,8 +34,7 @@ app.use(session({
     sameSite: 'strict',
     maxAge: 1000 * 60 * 60 * 2,
   },
-}));
-
+}));app.use('/api', generalLimiter); // applies to every api route, auth routes get the stricter limiter on top of this
 // csrf protection, registered before all feature routes so it actually applies to them
 const { generateCsrfToken, doubleCsrfProtection } = require('./middleware/csrf');
 
