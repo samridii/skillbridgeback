@@ -5,9 +5,10 @@ const validate = require('../middleware/validate');
 const { registerSchema, loginSchema } = require('../validators/authValidator');
 const { authLimiter } = require('../middleware/rateLimiter');
 const { protect, requireRole } = require('../middleware/auth');
+const verifyCaptcha = require('../middleware/captcha');
 
-router.post('/register', authLimiter, validate(registerSchema), register);
-router.post('/login', authLimiter, validate(loginSchema), login);
+router.post('/register', authLimiter, verifyCaptcha, validate(registerSchema), register);
+router.post('/login', authLimiter, verifyCaptcha, validate(loginSchema), login);
 router.post('/logout', logout);
 router.get('/me', protect, (req, res) => {
   res.status(200).json({ email: req.user.universityEmail, role: req.user.role });
