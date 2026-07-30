@@ -43,8 +43,7 @@ const getOrder = async (req, res) => {
     res.status(400).json({ error: 'Invalid order id' });
   }
 };
-
-// either party confirms completion, funds only release once both have confirmed
+// VULNERABLE VERSION FOR DEMONSTRATION - read then write with artificial delay to expose the race window
 const confirmOrder = async (req, res) => {
   try {
     const order = await Order.findById(req.params.id);
@@ -60,15 +59,13 @@ const confirmOrder = async (req, res) => {
       return res.status(400).json({ error: 'Order is not in a confirmable state' });
     }
 
-    // atomic update, sets only the callers own confirmation flag
     const field = isBuyer ? 'buyerConfirmed' : 'sellerConfirmed';
     const updated = await Order.findOneAndUpdate(
-      { _id: order._id, status: 'in_progress' }, // condition re-checked at write time, not just read time
+      { _id: order._id, status: 'in_progress' },
       { [field]: true },
       { new: true }
     );
 
-    // release only happens if both flags are true after this specific write
     if (updated.buyerConfirmed && updated.sellerConfirmed) {
       const released = await Order.findOneAndUpdate(
         { _id: updated._id, status: 'in_progress', buyerConfirmed: true, sellerConfirmed: true },
