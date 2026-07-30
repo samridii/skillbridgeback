@@ -6,6 +6,6 @@ const { protect, requireRole } = require('../middleware/auth');
 router.post('/', protect, raiseDispute); // any order party can raise
 
 router.get('/', protect, requireRole('admin'), getDisputeQueue);
-router.post('/:id/resolve', protect, requireRole('admin'), resolveDispute); // this line is the critical control
+router.post('/:id/resolve', protect, requireRole('admin'), resolveDispute); 
 
 module.exports = router;
