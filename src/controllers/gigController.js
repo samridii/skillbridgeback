@@ -44,9 +44,9 @@ const updateGig = async (req, res) => {
     const gig = await Gig.findById(req.params.id);
     if (!gig) return res.status(404).json({ error: 'Gig not found' });
 
-    if (gig.seller.toString() !== req.user._id.toString()) {
-      return res.status(403).json({ error: 'Not authorized to modify this gig' }); // ownership check, not just login check
-    }
+   if (gig.seller.toString() !== req.user._id.toString()) {
+    return res.status(403).json({ error: 'Not authorized to modify this gig' }); // Vulnerability check
+  }
 
     Object.assign(gig, req.body);
     await gig.save();
