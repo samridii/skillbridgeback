@@ -18,4 +18,13 @@ const generalLimiter = rateLimit({
   legacyHeaders: false,
 });
 
-module.exports = { authLimiter, generalLimiter };
+// strict limit specifically for mfa code guessing, 6 digit codes have limited keyspace
+const mfaLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000,
+  max: 5,
+  message: { error: 'Too many verification attempts, please try again later' },
+  standardHeaders: true,
+  legacyHeaders: false,
+});
+
+module.exports = { authLimiter, generalLimiter, mfaLimiter };
